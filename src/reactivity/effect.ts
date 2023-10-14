@@ -1,6 +1,6 @@
 class ReactiveEffect{
   private _fn:any;
-  constructor(fn){
+  constructor(fn, public scheduler?){
     this._fn=fn
   }
   run(){
@@ -9,9 +9,10 @@ class ReactiveEffect{
   }
 }
 
-export function effect(fn){
+export function effect(fn, options:any = {}){
+  const { scheduler }=options
   //封装fn
-  const _effect=new ReactiveEffect(fn)
+  const _effect=new ReactiveEffect(fn, scheduler)
   _effect.run()
   return _effect.run.bind(_effect)
 }
@@ -44,10 +45,15 @@ export function trigger(target, key){
   //获取target对应依赖
   let depsMap = targetMap.get(target)
   //获取key对应依赖
-  let deps=depsMap.get(key)
+  let deps = depsMap.get(key)
   //遍历dpes
   for(const dep of deps){
-    //执行依赖函数
-    dep.run()
+    if(dep.scheduler){
+      dep.scheduler()
+    }else{
+      //执行依赖函数
+      dep.run()
+    }
   }
+    
 }

@@ -26,4 +26,26 @@ describe("effect", () => {
     expect(foo).toBe(12)
     expect(res).toBe(foo)
   })
+  it("scheduler",() => {
+    let dummy
+    let run
+    const obj = reactive({ foo: 1 })
+    const scheduler = jest.fn(() => {
+      run = runner
+    })
+    
+    const runner = effect(() => {
+      dummy=obj.foo
+    },
+    {scheduler})
+
+    expect(scheduler).not.toHaveBeenCalled()
+    expect(dummy).toBe(1)
+
+    obj.foo++
+    expect(scheduler).toHaveBeenCalledTimes(1)
+    expect(dummy).toBe(1)
+    run()
+    expect(dummy).toBe(2)
+  })
 })
