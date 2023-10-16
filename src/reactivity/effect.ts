@@ -9,7 +9,6 @@ class ReactiveEffect{
     this._fn=fn
   }
   run(){
-    activeEffect=this
     return this._fn()
   }
   stop(){
@@ -29,7 +28,9 @@ export function effect(fn, options:any = {}){
   //封装fn
   const _effect=new ReactiveEffect(fn, scheduler)
   extend(_effect, options)
+  activeEffect=_effect
   _effect.run()
+  activeEffect=null
   const runner: any=_effect.run.bind(_effect)
   runner.effect=_effect
   return runner
@@ -41,6 +42,7 @@ const targetMap=new Map()
 let activeEffect
 //收集依赖
 export function track(target, key){
+  if(!activeEffect) return
   //获取target对应的依赖
   let depsMap = targetMap.get(target)
   //初始化
@@ -55,8 +57,9 @@ export function track(target, key){
     deps = new Set()
     depsMap.set(key, deps)
   }
-  if(!activeEffect) return
+  
   //收集依赖
+  if(deps.has(activeEffect)) return
   deps.add(activeEffect)
   activeEffect.deps.push(deps)
 }
@@ -88,4 +91,5 @@ function cleanupEffect(effect){
   effect.deps.forEach((item)=>{
     item.delete(effect)
   })
+  effect.deps.length = 0
 }
