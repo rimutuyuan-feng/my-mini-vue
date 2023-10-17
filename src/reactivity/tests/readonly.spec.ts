@@ -1,4 +1,4 @@
-import {isReadonly, readonly} from '../reactive'
+import {isProxy, isReadonly, readonly} from '../reactive'
 describe("readonly", () => {
   it("happy path", () => {
     const original = {foo:1, bar: {baz: 2}}
@@ -8,6 +8,7 @@ describe("readonly", () => {
     expect(isReadonly(observed)).toBe(true)
     expect(isReadonly(original)).toBe(false)
     expect(isReadonly(observed.bar)).toBe(true)
+    expect(isProxy(observed)).toBe(true)
   })
   it("warn then call set", () => {
     console.warn=jest.fn()
