@@ -1,6 +1,6 @@
 import { extend } from "./shared";
 
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: any;
   deps = []
   active = true
@@ -9,7 +9,10 @@ class ReactiveEffect {
     this._fn = fn
   }
   run() {
-    return this._fn()
+    activeEffect = this
+    const res = this._fn()
+    activeEffect = null
+    return res
   }
   stop() {
     if (this.active) {
@@ -28,9 +31,7 @@ export function effect(fn, options: any = {}) {
   //封装fn
   const _effect = new ReactiveEffect(fn, scheduler)
   extend(_effect, options)
-  activeEffect = _effect
   _effect.run()
-  activeEffect = null
   const runner: any = _effect.run.bind(_effect)
   runner.effect = _effect
   return runner
