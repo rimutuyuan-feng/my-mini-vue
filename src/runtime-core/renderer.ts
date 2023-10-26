@@ -21,6 +21,7 @@ function mountElement(vnode, container) {
   const { type, props, children } = vnode
   //创建元素
   const el = document.createElement(type)
+  vnode.el = el
   //设置元素属性
   if (isObject(props)) {
     for (const key in props) {
@@ -46,17 +47,18 @@ function processComponent(vnode: any, container: any) {
   mountComponent(vnode, container)
 }
 
-function mountComponent(vnode: any, container: any) {
+function mountComponent(initialVnode: any, container: any) {
   //创建instance对象
-  const instance = createComponentInstance(vnode)
+  const instance = createComponentInstance(initialVnode)
   //初始化组件
   setupComponent(instance)
   setupRenderEffect(instance, container)
 }
 
 function setupRenderEffect(instance, container) {
-  const subTree = instance.render()
+  const subTree = instance.render.call(instance.proxy)
   patch(subTree, container)
+  instance.vnode.el = subTree.el
 }
 
 
