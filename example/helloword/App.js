@@ -3,7 +3,12 @@ window.self = null
 export const App = {
   render() {
     window.self = this
-    return h("div", { id: "container" }, "hello" + this.msg)
+    return h("div", {
+      id: "container",
+      onClick() { 
+        console.log("click")
+      }
+    }, "hello" + this.msg)
   },
   setup() {
     return {
