@@ -1,4 +1,4 @@
-import { extend } from "./shared";
+import { extend } from "../shared";
 
 export class ReactiveEffect {
   private _fn: any;
