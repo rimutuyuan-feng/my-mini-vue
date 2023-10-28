@@ -1,3 +1,5 @@
+import { shallowReadonly } from "../reactivity/reactive"
+import { initProps } from "./componentProps"
 import { publicInstanceProxyHandler } from "./publicComponentInstance"
 
 export function createComponentInstance(vnode) {
@@ -10,6 +12,7 @@ export function createComponentInstance(vnode) {
 
 export function setupComponent(instance) {
   //TODO init props
+  initProps(instance)
   //TODO init slots
   setupStatefulComponent(instance)
 
@@ -20,7 +23,7 @@ function setupStatefulComponent(instance) {
   //定义组件代理对象
   instance.proxy = new Proxy({_: instance}, publicInstanceProxyHandler)
   if (component.setup) {
-    const res = component.setup()
+    const res = component.setup(shallowReadonly(instance.props))
     handleSetupResult(res, instance)
   }
 }
