@@ -6,14 +6,19 @@ export const App = {
     window.self = this
     return h("div", {
       id: "container",
-      onClick() { 
-        console.log("click")
-      }
-    }, [h("div", {}, "hello" + this.msg), h(Foo, {count: 1})])
+    }, [h("div", {}, "hello" + this.msg), h(Foo, { count: 1, onAdd: this.add, onAddFoo: this.addFoo })])
   },
   setup() {
+    function add(a, b) {
+      console.log(a + b)
+    }
+    function addFoo() {
+      console.log("add-foo")
+    }
     return {
-      msg: "mine-vue"
+      msg: "mine-vue",
+      add,
+      addFoo
     }
   }
 }

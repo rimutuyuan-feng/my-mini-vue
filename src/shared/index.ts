@@ -12,3 +12,17 @@ export function hasChanged(value, newValue) {
 export function hasOwn(obj, key){
   return Object.prototype.hasOwnProperty.call(obj, key)
 }
+ //xx-xx->xxXx
+ function camelize(str) {
+  return str.replace(/-(\w)/g, (_, c) => {
+    return c ? c.toUpperCase() : ""
+  })
+}
+//event->Event
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+//Event->onEvent
+export function toHandlerKey(str) {
+  return str ? "on" + capitalize(camelize(str)) : ""
+}
