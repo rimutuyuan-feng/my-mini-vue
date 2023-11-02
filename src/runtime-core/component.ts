@@ -39,8 +39,11 @@ function setupStatefulComponent(instance) {
     setCurrrentInstance(instance)
     const res = component.setup(shallowReadonly(instance.props), { emit: instance.emit })
     handleSetupResult(res, instance)
+    setCurrrentInstance(null)
+  } else {
+    finishComponentSetup(instance)
   }
-  setCurrrentInstance(null)
+  
 }
 function handleSetupResult(res, instance) {
   //TODO function res
