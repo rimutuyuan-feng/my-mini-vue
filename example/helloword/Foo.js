@@ -1,5 +1,6 @@
 import { h } from "../../lib/my-mini-vue.esm.js"
 export const Foo = {
+  name: "FOO",
   setup(props, { emit }) {
     function clickHandler() {
       emit("add", 1, 2),

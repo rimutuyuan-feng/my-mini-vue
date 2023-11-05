@@ -2,6 +2,7 @@ import { h } from "../../lib/my-mini-vue.esm.js"
 import { Foo } from "./Foo.js"
 window.self = null
 export const App = {
+  name: "APP",
   render() {
     window.self = this
     return h("div", {
