@@ -1,4 +1,5 @@
 import { shallowReadonly } from "../reactivity/reactive"
+import { proxyRefs } from "../reactivity/ref"
 import { emit } from "./componentEmit"
 import { initProps } from "./componentProps"
 import { initSlots } from "./componentSlots"
@@ -13,7 +14,9 @@ export function createComponentInstance(vnode, parent) {
     emit: () => {},
     slots: {},
     provides: parent ? parent.provides : {},
-    parent
+    parent,
+    isMounted: false,
+    subTree: null
   }
   instance.emit = emit.bind(null, instance) as any
   return instance
@@ -39,7 +42,7 @@ function setupStatefulComponent(instance) {
   instance.proxy = new Proxy({ _: instance }, publicInstanceProxyHandler)
   if (component.setup) {
     setCurrrentInstance(instance)
-    const res = component.setup(shallowReadonly(instance.props), { emit: instance.emit })
+    const res = proxyRefs(component.setup(shallowReadonly(instance.props), { emit: instance.emit }))
     handleSetupResult(res, instance)
     setCurrrentInstance(null)
   } else {
