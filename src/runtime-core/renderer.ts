@@ -1,6 +1,6 @@
 import { effect } from "../reactivity/effect"
 import { ShapeFlags } from "../shared/ShapeFlags"
-import { isObject } from "../shared/index"
+import { EMPTY_OBJ, isObject } from "../shared/index"
 import { createComponentInstance, setupComponent } from "./component"
 import { createAppAPI } from "./createApp"
 import { Fragment, Text } from "./vnode"
@@ -57,7 +57,7 @@ export function createRender(options) {
     if (isObject(props)) {
       for (const key in props) {
 
-        hostPatchProp(el, key, props[key])
+        hostPatchProp(el, key, null, props[key])
       }
     }
     //挂载元素子节点
@@ -77,6 +77,30 @@ export function createRender(options) {
   function patchElement(n1, n2, container){
     console.log("patchElement")
     console.log(n1, n2)
+    const oldProps = n1.props || EMPTY_OBJ
+    const newProps = n2.props || EMPTY_OBJ
+    const el = (n2.el = n1.el)
+    patchProps(el, oldProps, newProps)
+  }
+  function patchProps(el, oldPorps, newProps){
+    if(oldPorps != newProps){
+      //修改
+      for (const key in newProps) {
+        const preProp = oldPorps[key]
+        const nextProp = newProps[key]
+        if (preProp !== nextProp) {
+          console.log(nextProp)
+          hostPatchProp(el, key, preProp, nextProp)
+        }
+      }
+      //删除
+      if(oldPorps === EMPTY_OBJ) return
+      for (const key in oldPorps) {
+        if (!(key in newProps)){
+          hostPatchProp(el, key, oldPorps[key], undefined)
+        }
+      }
+    }
   }
   //处理组件
   function processComponent(n1, n2: any, container: any, parentComponent) {
