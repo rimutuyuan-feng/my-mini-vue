@@ -6,7 +6,13 @@ import { createAppAPI } from "./createApp"
 import { Fragment, Text } from "./vnode"
 export function createRender(options) {
 
-  const { createElement: hostCreateElement, patchProp: hostPatchProp, insert: hostInsert } = options
+  const { 
+    createElement: hostCreateElement, 
+    patchProp: hostPatchProp, 
+    insert: hostInsert, 
+    remove: hostRemove,
+    setElementText: hostSetElementText
+  } = options
   // n1：oldVnode, n2: newVnode
   function render(n1, n2, container, parentComponent) {
     patch(n1, n2, container, parentComponent)
@@ -44,7 +50,7 @@ export function createRender(options) {
     if (!n1) {
       mountElement(n2, container, parentComponent)
     } else {
-      patchElement(n1, n2, container)
+      patchElement(n1, n2, container, parentComponent)
     }
   }
   //挂载元素
@@ -74,32 +80,63 @@ export function createRender(options) {
     })
   }
   //更新元素
-  function patchElement(n1, n2, container){
+  function patchElement(n1, n2, container, parentComponent) {
     console.log("patchElement")
     console.log(n1, n2)
     const oldProps = n1.props || EMPTY_OBJ
     const newProps = n2.props || EMPTY_OBJ
     const el = (n2.el = n1.el)
+    //更新props
     patchProps(el, oldProps, newProps)
+    //更新children
+    patchChildren(n1, n2, el, parentComponent)
   }
-  function patchProps(el, oldPorps, newProps){
-    if(oldPorps != newProps){
+  //更新props
+  function patchProps(el, oldPorps, newProps) {
+    if (oldPorps != newProps) {
       //修改
       for (const key in newProps) {
         const preProp = oldPorps[key]
         const nextProp = newProps[key]
         if (preProp !== nextProp) {
-          console.log(nextProp)
           hostPatchProp(el, key, preProp, nextProp)
         }
       }
       //删除
-      if(oldPorps === EMPTY_OBJ) return
+      if (oldPorps === EMPTY_OBJ) return
       for (const key in oldPorps) {
-        if (!(key in newProps)){
+        if (!(key in newProps)) {
           hostPatchProp(el, key, oldPorps[key], undefined)
         }
       }
+    }
+  }
+  //更新Children
+  function patchChildren(n1, n2, container, parentComponent) {
+    const { shapeFlag } = n2
+    const preShapeFlag = n1.shapeFlag
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      if (preShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        //array to text
+        //将原children清空
+        unmountChildren(n1.children)
+      } 
+      //text to text
+      hostSetElementText(container, n2.children)
+    } else {
+      if (preShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+        //text to array
+        //text清空
+        hostSetElementText(container, "")
+        mountchildren(n2.children, container, parentComponent)
+      }
+    }
+  }
+  //清空元素
+  function unmountChildren(children) {
+    for (let i = 0; i < children.length; i++) {
+      const el = children[i].el
+      hostRemove(el)
     }
   }
   //处理组件
@@ -121,7 +158,7 @@ export function createRender(options) {
       const { isMounted } = instance
       if (!isMounted) {
         const subTree = (instance.subTree = instance.render.call(instance.proxy))
-        patch(null,subTree, container, instance)
+        patch(null, subTree, container, instance)
         instance.vnode.el = subTree.el
         instance.isMounted = true
       } else {
@@ -131,8 +168,8 @@ export function createRender(options) {
         patch(preSubTree, subTree, container, instance)
         instance.vnode.el = subTree.el
         instance.isMounted = true
-      } 
-      
+      }
+
     })
   }
   return {
