@@ -2,6 +2,7 @@ import { effect } from "../reactivity/effect"
 import { ShapeFlags } from "../shared/ShapeFlags"
 import { EMPTY_OBJ, isObject } from "../shared/index"
 import { createComponentInstance, setupComponent } from "./component"
+import { shouldUpdateComponent } from "./componentUpdateUtils"
 import { createAppAPI } from "./createApp"
 import { Fragment, Text } from "./vnode"
 export function createRender(options) {
@@ -259,7 +260,9 @@ export function createRender(options) {
   }
   function getSequence(arr: number[]): number[] {
     const length = arr.length
+    //记录以数组中每一个当前位置数结尾的递增序列的前一个位置
     const tempArr = new Array(length).fill(0)
+    //如果有resubt[i] = b 表示在所有长度为i+1的递增序列中，最小结尾数量为b
     const result = [0]
     for (let i = 1; i < length; i++) {
       if (arr[i] === 0) {
@@ -299,20 +302,38 @@ export function createRender(options) {
 
   //处理组件
   function processComponent(n1, n2: any, container: any, parentComponent, achor) {
-    //挂载组件
-    mountComponent(n2, container, parentComponent, achor)
+    if (!n1) {
+      //挂载组件
+      mountComponent(n2, container, parentComponent, achor)
+    } else {
+      //更新组件
+      updateComponent(n1, n2)
+    }
+
+  }
+  //更新组件
+  function updateComponent(n1, n2) {
+    const instance = (n2.component = n1.component)
+    if (shouldUpdateComponent(n1, n2)) {
+      instance.next = n2
+      instance.update()
+    } else {
+      n2.el = n1.el
+      instance.node = n2
+    }
+
   }
 
   function mountComponent(initialVnode: any, container: any, parentComponent, achor) {
     //创建instance对象
-    const instance = createComponentInstance(initialVnode, parentComponent)
+    const instance = (initialVnode.component = createComponentInstance(initialVnode, parentComponent))
     //初始化组件
     setupComponent(instance)
     setupRenderEffect(instance, container, achor)
   }
 
   function setupRenderEffect(instance, container, achor) {
-    effect(() => {
+    instance.update = effect(() => {
       const { isMounted } = instance
       if (!isMounted) {
         const subTree = (instance.subTree = instance.render.call(instance.proxy))
@@ -320,6 +341,11 @@ export function createRender(options) {
         instance.vnode.el = subTree.el
         instance.isMounted = true
       } else {
+        const { next, vnode } = instance
+        if (next) {
+          next.el = vnode.el
+          updateComponentPreRender(instance, next)
+        }
         const subTree = instance.render.call(instance.proxy)
         const preSubTree = instance.subTree
         instance.subTree = subTree
@@ -329,6 +355,11 @@ export function createRender(options) {
       }
 
     })
+  }
+  function updateComponentPreRender(instance, nextVnode) {
+    instance.props = nextVnode.props
+    instance.vnode = nextVnode
+    instance.next = null
   }
   return {
     createApp: createAppAPI(render)
