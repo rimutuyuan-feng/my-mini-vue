@@ -40,7 +40,7 @@ function setupStatefulComponent(instance) {
   const component = instance.type
   //定义组件代理对象
   instance.proxy = new Proxy({ _: instance }, publicInstanceProxyHandler)
-  if (component.setup) {
+  if (component.setup && component.setup()) {
     setCurrrentInstance(instance)
     const res = proxyRefs(component.setup(shallowReadonly(instance.props), { emit: instance.emit }))
     handleSetupResult(res, instance)
