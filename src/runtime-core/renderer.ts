@@ -4,6 +4,7 @@ import { EMPTY_OBJ, isObject } from "../shared/index"
 import { createComponentInstance, setupComponent } from "./component"
 import { shouldUpdateComponent } from "./componentUpdateUtils"
 import { createAppAPI } from "./createApp"
+import { queueJob } from "./scheduler"
 import { Fragment, Text } from "./vnode"
 export function createRender(options) {
 
@@ -354,6 +355,10 @@ export function createRender(options) {
         instance.isMounted = true
       }
 
+    }, {
+      scheduler: () => {
+        queueJob(instance.update)
+      }
     })
   }
   function updateComponentPreRender(instance, nextVnode) {
