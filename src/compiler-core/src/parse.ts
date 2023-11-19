@@ -52,7 +52,8 @@ function advanceBy(context: any, index: number) {
 
 function createRoot(children) {
   return {
-    children
+    children,
+    type: NodeTypes.ROOT
   }
 }
 function createParseContext(content: string) {
