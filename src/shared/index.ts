@@ -5,6 +5,9 @@ export const EMPTY_OBJ = {}
 export function isObject(raw) {
   return raw !== null && typeof raw === "object"
 }
+export function isString(value) {
+  return typeof value === "string"
+}
 //判断是否改变
 export function hasChanged(value, newValue) {
   return !Object.is(value, newValue)
@@ -27,3 +30,4 @@ function capitalize(str) {
 export function toHandlerKey(str) {
   return str ? "on" + capitalize(camelize(str)) : ""
 }
+
