@@ -5,7 +5,7 @@ import { transformElement } from "./transform/transformElement";
 import { transformExpression } from "./transform/transformExpression";
 import { transformText } from "./transform/transformText";
 
-export function baseComplie(template) {
+export function baseCompile(template) {
   const ast = baseParse(template)
   transform(ast, {
     nodeTransforms: [transformExpression, transformElement, transformText]

@@ -69,6 +69,6 @@ function finishComponentSetup(instance) {
   }
 }
 let compiler
-export function registerRuntimeComplier(_complier) {
-  compiler = _complier
+export function registerRuntimeCompiler(_compiler) {
+  compiler = _compiler
 }
