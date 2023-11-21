@@ -2,6 +2,7 @@ import { ShapeFlags } from "../shared/ShapeFlags"
 import { isObject } from "../shared/index"
 export const Fragment = Symbol("Fragment")
 export const Text = Symbol("Text")
+export { createVNode as createElementVnode }
 export function createTextVNode(text: string){
   return createVNode(Text, null, text)
 }

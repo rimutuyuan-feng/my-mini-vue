@@ -64,5 +64,11 @@ function finishComponentSetup(instance) {
   const component = instance.type
   if (component.render) {
     instance.render = component.render
+  } else if (compiler && component.template) {
+    instance.render = compiler(component.template)
   }
+}
+let compiler
+export function registerRuntimeComplier(_complier) {
+  compiler = _complier
 }

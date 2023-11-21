@@ -337,7 +337,7 @@ export function createRender(options) {
     instance.update = effect(() => {
       const { isMounted } = instance
       if (!isMounted) {
-        const subTree = (instance.subTree = instance.render.call(instance.proxy))
+        const subTree = (instance.subTree = renderCalled(instance))
         patch(null, subTree, container, instance, achor)
         instance.vnode.el = subTree.el
         instance.isMounted = true
@@ -347,7 +347,7 @@ export function createRender(options) {
           next.el = vnode.el
           updateComponentPreRender(instance, next)
         }
-        const subTree = instance.render.call(instance.proxy)
+        const subTree = renderCalled(instance)
         const preSubTree = instance.subTree
         instance.subTree = subTree
         patch(preSubTree, subTree, container, instance, achor)
@@ -370,4 +370,7 @@ export function createRender(options) {
     createApp: createAppAPI(render)
   }
 }
-
+function renderCalled(instance) {
+  const { render, proxy } = instance
+  return render.call(proxy, proxy)
+}
