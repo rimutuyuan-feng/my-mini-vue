@@ -98,5 +98,6 @@ function cleanupEffect(effect) {
   effect.deps.forEach((item) => {
     item.delete(effect)
   })
+  console.log("--------", effect)
   effect.deps.length = 0
 }
