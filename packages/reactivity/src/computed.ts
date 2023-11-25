@@ -17,6 +17,11 @@ class ComputedRefImpl {
     return this._value
   }
 }
+/**
+ * 监听getter值的变化，并返回只读的响应式ref对象
+ * @param getter 
+ * @returns 
+ */
 export function computed(getter) {
   return new ComputedRefImpl(getter)
 }

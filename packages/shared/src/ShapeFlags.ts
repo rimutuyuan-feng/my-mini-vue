@@ -1,3 +1,6 @@
+/**
+ * 虚拟节点类型
+ */
 export const enum ShapeFlags {
   ELEMENT = 1,
   STATEFUL_COMPONENT = 1 << 1,

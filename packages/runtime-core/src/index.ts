@@ -5,6 +5,7 @@ export { getCurrentInstance, registerRuntimeCompiler} from "./component"
 export { provide, inject } from "./apiInject"
 export { createRender } from "./renderer"
 export { nextTick } from "./scheduler"
-export { watchEffect } from "./apiWatch"
+export { watchEffect 
+} from "./apiWatch"
 export { toDisplayString } from "@my-mini-vue/shared"
 export * from "@my-mini-vue/reactivity"
